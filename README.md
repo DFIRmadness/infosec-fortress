@@ -34,9 +34,10 @@ This script will make /opt/infosec-fortress. This directory will contain build l
 3. Burp Suite
 4. Zap
 5. VS Code
-6. The REMnux Distribution
-7. Log2Timeline
-8. Elasticsearch containers
-9. Powershell Core
+6. Ghidra (Pronounced Gee-druh)
+7. The REMnux Distribution
+8. Log2Timeline
+9. Elasticsearch containers
+10. Powershell Core
 
 And more...
