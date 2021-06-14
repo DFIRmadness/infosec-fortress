@@ -73,3 +73,30 @@ def buildSnapPackageList():
         listOfPackagesCommand = (listOfPackagesCommand + ' ' + package).strip()
     return(listOfPackagesCommand)
 
+# apt update
+
+# dist upgrade
+
+# install base packages
+
+# create /opt/infosec-fortress
+
+# Metasploit Framework
+
+# Burp Suite
+
+# ZAP
+
+# VS Code
+
+# ghidra (Pronounced Gee-druh)
+
+# the REMnux Distribution
+
+# log2Timeline
+
+# elasticsearch containers
+
+# powershell Core
+
+# display fortress artwork
