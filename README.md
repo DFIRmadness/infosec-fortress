@@ -15,14 +15,8 @@ A python script to turn Ubuntu Desktop in a one stop security platform. The Info
 1. Review the script.
 2. No changes needed to get started.
 3. Check list of packages, add, or take away etc.
-4. Clone this repository
-
-`git clone https://github.com/ED-209-MK7/infosec-fortress.git`
-
-5. Run the script as sudo/root.
-
-`sudo python3 build-fortress.py`
-
+4. Clone this repository `git clone https://github.com/ED-209-MK7/infosec-fortress.git`
+5. Run the script as sudo/root. `sudo python3 build-fortress.py`
 6. Go make a sandwhich.
 
 This script will make /opt/infosec-fortress. This directory will contain build logs and an update script.
