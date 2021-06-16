@@ -11,6 +11,7 @@ TODOs: Better error handling around run commands. Set it as a var, then parse ou
 + Responder
 + secretsdump.py
 + bettercap
++ regripper
 
 Functions:
 + apt update
