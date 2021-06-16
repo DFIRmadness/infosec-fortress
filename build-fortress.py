@@ -265,8 +265,8 @@ def installBasePackages():
 def swapNetcat():
     writeToLog('[*] Attempting to trade out netcat-bsd for netcat-traditional')
     try:
-        run(['/usr/bin/apt purge netcat-openbsd'],shell=True)
-        run(['/usr/bin/apt purge netcat-traditional'],shell=True)
+        run(['/usr/bin/apt purge  -y netcat-openbsd'],shell=True)
+        run(['/usr/bin/apt install -y netcat-traditional'],shell=True)
         writeToLog('[+] netcat-traditional installed.')
     except Exception as e:
         writeToLog('[-] Installation of netcat-traditional failed. Error: '+str(e))
