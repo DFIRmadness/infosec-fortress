@@ -38,16 +38,29 @@ This script will make /opt/infosec-fortress. This directory will contain build l
 2. Zap
 3. VS Code
 4. Ghidra (Pronounced Ghee-druh (like geek wihtout the k + druh))
-5. Metasploit Framework
-6. Log2Timeline (Plaso)
-7. Powershell Core
+5. radare2
+6. Metasploit Framework
+7. Log2Timeline (Plaso)
+8. Powershell Core
+9. nmap
+10. masscan
+11. Hashcat
+12. John
+13. Hydra
+14. Medusa
+15. smbclient /rpcclient
+16. sqlmap
+17. netcat-traditional
+18. binwalk
+19. All the tools from REMnux and SIFT
 
 And more...
 
 ### To-Do's
-1. Add a dir containing pre-made host enumeration scripts
-2. add DPAT?
-3. Responder symlink
-4. add secretsdump.py (might be there already)
-5. add bettercap
-6. add Empyre?
+* Add a dir containing pre-made host enumeration scripts
+* add DPAT (domain password auditing tool)?
+* SRUM Dump.py (does it work on Ubuntu?)
+* Responder symlink
+* add secretsdump.py (might be there already)
+* add bettercap
+* add Empyre? or similar
