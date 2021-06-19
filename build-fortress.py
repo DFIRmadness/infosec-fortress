@@ -3,15 +3,10 @@
 Title: build-fortress.py
 Purpose: Build the infosec-fortress
 Author: James Smith (DFIRmadness)
+Contributors: Check the github page.
 Notes: Beta
 Version: 0.1
-
-TODOs: Better error handling around run commands. Set it as a var, then parse output. Nice to have. Not needed.
-+ DPAT
-+ Responder
-+ secretsdump.py
-+ bettercap
-+ regripper
+Usage: ./build-fortress.py
 
 Functions:
 + apt update
@@ -20,7 +15,8 @@ Functions:
 + create /opt/infosec-fortress
 + start log
 + install starter packages (min. pkgs to let script run)
-+ install the REMnux Distribution 
++ install the REMnux Distribution
++ install SIFT
 + install base security packages
 + install Metasploit Framework
 + install wordlists
@@ -47,51 +43,47 @@ starterPackagesList = [
     'net-tools',
     'curl',
     'git'
-]
+    ]
 
 # List of packages to have APT install. Change if you want. You break it you buy it.
 aptPackageList = [
-    'chromium-browser',
     'tmux',
     'torbrowser-launcher',
     'nmap',
     'smbclient',
     'locate',
-    'radare2',
     'radare2-cutter',
     'snort',
     'dirb',
     'gobuster',
-    'nikto',
-    'hydra',
     'medusa',
     'masscan',
     'whois',
     'libjenkins-htmlunit-core-js-java',
     'autopsy',
     'hashcat',
-    'john',
     'kismet',
     'kismet-plugins',
-    'aircrack-ng',
     'airgraph-ng',
     'wifite',
-    'forensics-extra',
     'dnsenum',
     'dnsmap',
-    'forensics-full',
-    'python3-scapy',
     'ettercap-common',
     'ettercap-graphical',
     'netdiscover'
-]
+    ]
 
 # List of packages to have SNAP install. Change if you want. You break it you buy it.
 snapPackageList = [
+    'chromium',
     'sqlmap',
-    'code',
-    'zaproxy'
+    'john-the-ripper'
     ]
+
+# Snaps that need --classic
+snapClassicPackageList =[
+    'zaproxy'
+]
 
 ########################################################
 # Colors
@@ -107,6 +99,8 @@ from os import geteuid,path,makedirs
 from os.path import expanduser
 from subprocess import run
 from urllib.request import urlopen
+from requests import get
+from re import search
 
 # Check that the user is root
 def checkIfRoot():
@@ -123,9 +117,27 @@ def checkForInternet():
         print(RED + '[-] Internet connection looks down. You will need internet for this to run (most likely). Fix and try again.' + NOCOLOR)
         exit(1)
 
-print('[!] This script requires user input once or twice.\n\
-[!] It is not completely "Set and Forget".')
-nullInput = input('Hit Enter.')
+def initNotice():
+    print('[!] This script requires user input once or twice.\n\
+    [!] It is not completely "Set and Forget".')
+    nullInput = input('Hit Enter.')
+
+# Get starting Disk Room
+def freeSpaceStart():
+    # Needs Regex Impovement with RE Search. Non Gig sized systems will break this.
+    global FREE_SPACE_START_INT
+    freeSpaceStart = run(['df -h /'],shell=True,capture_output=True).stdout.decode().split('G')[2].strip()
+    writeToLog('[i] Gigs of Free Space on / at the Start of the build: ' + freeSpaceStart + 'G')
+    FREE_SPACE_START_INT = float(freeSpaceStart)
+    return(FREE_SPACE_START_INT)
+
+def freeSpaceEnd():
+    # Needs Regex Impovement with RE Search. Non Gig sized systems will break this.
+    freeSpaceEnd = run(['df -h /'],shell=True,capture_output=True).stdout.decode().split('G')[2].strip()
+    writeToLog('[i] Gigs of Free Space on / at the Start of the build: ' + freeSpaceEnd + 'G')
+    freeSpaceEndInt = float(freeSpaceEnd)
+    spaceUsed = FREE_SPACE_START_INT - freeSpaceEndInt
+    writeToLog('[i] Gigs of Space used for InfoSec-Fortress Buildout: ' + str(spaceUsed) + 'G')
 
 # Check/Inform about for unattended upgrade
 def informAboutUnattendedUpgade():
@@ -164,13 +176,13 @@ def writeToLog(stringToLog):
     with open(LOG, 'a') as log:
         log.write(now + " - " + stringToLog + '\n')
     if '[+]' in stringToLog:
-        print(GREEN + stringToLog + NOCOLOR)
+        print('\n' + GREEN + stringToLog + NOCOLOR + '\n----------------------------------------------------------\n')
     elif '[-]' in stringToLog:
-        print(RED + stringToLog + NOCOLOR)
+        print('\n' + RED + stringToLog + NOCOLOR + '\n----------------------------------------------------------\n')
     elif '[i]' in stringToLog + NOCOLOR:
-        print(YELLOW + stringToLog + NOCOLOR)
+        print('\n' + YELLOW + stringToLog + NOCOLOR + '\n----------------------------------------------------------\n')
     else:
-        print(stringToLog)
+        print('\n' + stringToLog + '\n----------------------------------------------------------\n')
 
 def buildStarterPackageList():
     listOfPackagesCommand = ''
@@ -187,6 +199,12 @@ def buildAptPackageList():
 def buildSnapPackageList():
     listOfPackagesCommand = ''
     for package in snapPackageList:
+        listOfPackagesCommand = (listOfPackagesCommand + ' ' + package).strip()
+    return(listOfPackagesCommand)
+
+def buildSnapClassicPackagesList():
+    listOfPackagesCommand = ''
+    for package in snapClassicPackageList:
         listOfPackagesCommand = (listOfPackagesCommand + ' ' + package).strip()
     return(listOfPackagesCommand)
 
@@ -228,18 +246,41 @@ def installREMnux():
         run(['/usr/bin/chmod +x remnux'],shell=True)
         run(['/usr/bin/mv remnux /usr/local/bin'],shell=True)
         run(['/usr/local/bin/remnux install --mode=addon'],shell=True)
+        writeToLog('[+] REMnux Added On (downloaded and ran).')
     except Exception as e:
         writeToLog('[-] Something went wrong during the REMnux install. Error: ' + str(e))
 
+# Install SIFT
+def installSIFTPackages():
+    writeToLog('[*] Finding latest SIFT Release.')
+    try:
+        latestLinkPage  = get('https://github.com/sans-dfir/sift-cli/releases/latest').text.splitlines()
+        latestSIFTBinLine = [match for match in latestLinkPage if "sift-cli-linux" in match][4].split('"')[1]
+        latestSIFTBin = search('https:.*sift-cli-linux',latestSIFTBinLine)[0]
+        writeToLog('[+] latest SIFT BIN: ' + latestSIFTBin)
+    except Exception as e:
+        writeToLog('[-] latest SIFT Bin not found. Error: ' + str(e))
+        return
+    writeToLog('[*] Installing SIFT Packages.')
+    try:
+        run(['/usr/bin/curl -Lo /usr/local/bin/sift ' + latestSIFTBin],shell=True)
+        run(['/usr/bin/chmod +x /usr/local/bin/sift'],shell=True)
+        run(['/usr/local/bin/sift install --mode=packages-only'],shell=True)
+        writeToLog('[+] SIFT Packages installed (downloaded and ran).')
+    except Exception as e:
+        writeToLog('[-] Installation of SIFT Packages had an error. Error: '+str(e))
+
 # install base packages
-def installBasePackages():
-    print('[i] If Wireshark asks - say YES non-super users can capture packets.\n\
+def installAPTandSNAPPackages():
+    print('[i] If Wireshark asks - say YES non-super users can capture packets.\n\n\
     [i] When snort asks about a monitoring interface enter lo.\n\
     [i] Setting the interface to "lo" (no quotes) sets it for local use.\n\
-    [i] Set any private network for the "home" network.')
+    [i] Set any private network for the "home" network.\n\n\
+    [i] KISMET - Say YES to the sticky bit. Add your username to the Kismet Goup at the prompt.')
     nullInput = input('Hit Enter.')
     aptPackages = buildAptPackageList()
     snapPackages = buildSnapPackageList()
+    snapClassicPackages = buildSnapClassicPackagesList()
     writeToLog('[*] Attempting installation of the following ATP packages: ' + aptPackages)
     try:
         run(['/usr/bin/apt install -y ' + aptPackages],shell=True)
@@ -247,18 +288,18 @@ def installBasePackages():
     except Exception as e:
         writeToLog('[-] APT Packages installation failed:',str(e))
     writeToLog('[*] Attempting installation of the following Snap Packages: ' + snapPackages)
-    #try:
-    #    run(['/usr/bin/snap install --classic ' + snapPackages],shell=True)
-    #    writeToLog('[+] APT Packages installed.')        
-    #except Exception as e:
-    #    writeToLog('[-] Snap packages installation failed:',str(e))
     try:
-        run(['/usr/bin/snap install --classic code'],shell=True)
-        run(['/usr/bin/snap install --classic zaproxy'],shell=True)
-        run(['/usr/bin/snap install sqlmap'],shell=True)
-        writeToLog('[+] APT Packages installed.')        
+        run(['/usr/bin/snap install ' + snapPackages],shell=True)
+        writeToLog('[+] Snap Packages installed.')        
     except Exception as e:
         writeToLog('[-] Snap packages installation failed:',str(e))
+    writeToLog('[*] Attempting installation of the following Snap Classic Packages: ' + snapClassicPackages)
+    for package in snapClassicPackageList:
+        try:
+            run(['/usr/bin/snap install --classic ' + package],shell=True)
+            writeToLog('[+] Snap Classic ' + package + ' installed.')
+        except Exception as e:
+            writeToLog('[-] Snap packages ' + package + ' failed:',str(e))
 
 # Swap Netcats
 # Change out netcat-bsd for netcat-traditional
@@ -320,34 +361,23 @@ def installExploitDb():
     except Exception as e:
         writeToLog('[-] There was an error updating ExploitDB. Error: ' + str(e))
 
-# log2Timeline
-def installPlaso():
-    try:
-        writeToLog('[*] Attempting to install Plaso...')
-        run(['/usr/bin/add-apt-repository ppa:gift/stable -y'],shell=True)
-        run(['/usr/bin/apt-get update -y'],shell=True)
-        run(['/usr/bin/apt-get install -y plaso-tools'],shell=True)
-        writeToLog('[+] Plaso installed.')
-    except Exception as e:
-        writeToLog('[-] There was an error installing Plaso. Error: ' + str(e))
-
 # elasticsearch containers?
 
 # powershell Core
 # REMnux already installs it.
-def installPosh():
-    writeToLog('[*] Installing Powershell.')
-    try:
-        run(['/usr/bin/apt-get update\
-            && /usr/bin/apt-get install -y wget apt-transport-https software-properties-common\
-            && /usr/bin/wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb\
-            && /usr/bin/dpkg -i packages-microsoft-prod.deb\
-            && /usr/bin/apt-get update\
-            && /usr/bin/add-apt-repository universe\
-            && /usr/bin/apt-get install -y powershell'],shell=True)
-        writeToLog('[+] Powershell installed.')
-    except Exception as e:
-        writeToLog('[-] There was an error installing Powershell. Error: ' + str(e))
+#def installPosh():
+#    writeToLog('[*] Installing Powershell.')
+#    try:
+#        run(['/usr/bin/apt-get update\
+#            && /usr/bin/apt-get install -y wget apt-transport-https software-properties-common\
+#            && /usr/bin/wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb\
+#            && /usr/bin/dpkg -i packages-microsoft-prod.deb\
+#            && /usr/bin/apt-get update\
+#            && /usr/bin/add-apt-repository universe\
+#            && /usr/bin/apt-get install -y powershell'],shell=True)
+#        writeToLog('[+] Powershell installed.')
+#    except Exception as e:
+#        writeToLog('[-] There was an error installing Powershell. Error: ' + str(e))
 
 # Install Impacket
 def installImpacket():
@@ -379,6 +409,41 @@ def installEnumNG():
     except Exception as e:
         writeToLog('[-] There was an error installing Enum4Linux-ng. Error: ' + str(e))
 
+# Install WebShells
+def installWebShells():
+    writeToLog('[*] Installing Kali\'s Webshells')
+    try:
+        run(['/usr/bin/git clone https://gitlab.com/kalilinux/packages/webshells.git /usr/share/webshells'],shell=True)
+        writeToLog('[+] Kali\'s WebShells Cloned to /usr/share/webshells')
+    except Exception as e:
+        writeToLog('[-] There was an error installing Enum4Linux. Error: ' + str(e))
+
+# Install Windows Resources
+def installWindowsResources():
+    writeToLog('[*] Installing Kali\'s Windows Resources')
+    try:
+        run(['/usr/bin/git clone https://gitlab.com/kalilinux/packages/windows-binaries.git /usr/share/windows-resources'],shell=True)
+        writeToLog('[+] Kali\'s WebShells Cloned to /usr/share/webshells')
+    except Exception as e:
+        writeToLog('[-] There was an error installing Enum4Linux. Error: ' + str(e))
+
+# Install Bloodhound
+def installBloodhound():
+    writeToLog('[*] Finding latest Blood Hound Release.')
+    try:
+        latestLinkPage  = get('https://github.com/BloodHoundAD/BloodHound/releases/latest').text.splitlines()
+        latestBloodHoundZip = [match for match in latestLinkPage if "BloodHound-linux-x64.zip" in match][0].split('"')[1]
+        writeToLog('[+] latest Blood Hound Zip at: ' + latestBloodHoundZip)
+    except Exception as e:
+        writeToLog('[-] latest Blood Hound Zip not found. Error: ' + str(e))
+        return
+    writeToLog('[*] Installing Bloodhound...')
+    try:
+        run(['/usr/bin/curl -Lo /tmp/bloodhound.zip https://github.com' + latestBloodHoundZip],shell=True)
+        run(['/usr/bin/unzip -o /tmp/bloodhound.zip -d /opt/'],shell=True)
+    except Exception as e:
+        writeToLog('[-] Bloodhound not installed. Error: ' + str(e))
+
 # display log
 def displayLog():
     print('[*] The following activities were logged:\n')
@@ -393,34 +458,37 @@ def displayLog():
 def giveUserNextSteps():
     print(GREEN + '[+]' + '-----------------------------------------------------------------------------------' + NOCOLOR)
     print(GREEN + '[+]' + '------------------------ ! Script Complete ! --------------------------------------' + NOCOLOR)
-    print('[!] REBOOT the system. After Reboot you will want to run Burp, Zap and Ghidra. Each will ask you to update.\
+    print('\n\n[!] REBOOT the system. After Reboot you will want to run Burp, Zap and Ghidra. Each will ask you to update.\
         \n    You should update these. If they have you download a .deb file you simple run ' + GREEN + 'dpkg -i foo.deb' + NOCOLOR + '.')
     nullInput = input('Hit Enter.')
 
 # Re-enable unattended upgrade
     #Only needed if auto kill of unattended upgrades is added
 
-# Reboot - wait for null input as announcement to user
-    # Let the user do this
-
 def main():
     checkIfRoot()
     checkForInternet()
+    initNotice()
     informAboutUnattendedUpgade()
     createFortressDir(FORTRESS_DIR)
     startLogFile()
+    freeSpaceStart()
     updateOS()
     installStarterPackages()
     installREMnux()
-    installBasePackages()
+    installSIFTPackages()
+    installAPTandSNAPPackages()
     swapNetcat()
     installMSF()
     installWordlists()
     installExploitDb()
-    installPlaso()
     installImpacket()
     installEnum()
     installEnumNG()
+    installWebShells()
+    installWindowsResources()
+    installBloodhound()
+    freeSpaceEnd()
     displayLog()
     giveUserNextSteps()
     exit(0)
