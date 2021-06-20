@@ -81,8 +81,9 @@ snapPackageList = [
     ]
 
 # Snaps that need --classic
+# Avoid these. It's better to scrape a git for the latest and install. Zaproxy is a great example.
 snapClassicPackageList =[
-    'zaproxy'
+    #'zaproxy'
 ]
 
 ########################################################
@@ -293,6 +294,9 @@ def installAPTandSNAPPackages():
         writeToLog('[+] Snap Packages installed.')        
     except Exception as e:
         writeToLog('[-] Snap packages installation failed:',str(e))
+    if len(snapClassicPackages) == 0:
+        writeToLog('[*] No snap classics to install.')
+        return
     writeToLog('[*] Attempting installation of the following Snap Classic Packages: ' + snapClassicPackages)
     for package in snapClassicPackageList:
         try:
@@ -399,7 +403,7 @@ def installEnum():
     except Exception as e:
         writeToLog('[-] There was an error installing Enum4Linux. Error: ' + str(e))
 
-# enum4linux https://github.com/cddmp/enum4linux-ng
+# enum4linux
 def installEnumNG():
     writeToLog('[*] Installing Enum4Linux-ng.')
     try:
@@ -443,6 +447,23 @@ def installBloodhound():
         run(['/usr/bin/unzip -o /tmp/bloodhound.zip -d /opt/'],shell=True)
     except Exception as e:
         writeToLog('[-] Bloodhound not installed. Error: ' + str(e))
+
+# Find and install latest Zaproxy
+def installZaproxy():
+    writeToLog('[*] Finding latest Zaproxy Release.')
+    try:
+        latestLinkPage  = get('https://github.com/zaproxy/zaproxy/releases/latest').text.splitlines()
+        latestZapDeb = [match for match in latestLinkPage if "_all.deb" in match][0].split('"')[1]
+        writeToLog('[+] latest Zaproxy Zip at: ' + latestZapDeb)
+    except Exception as e:
+        writeToLog('[-] latest Zaproxy Zip not found. Error: ' + str(e))
+        return
+    writeToLog('[*] Installing Zaproxy...')
+    try:
+        run(['/usr/bin/curl -Lo /tmp/zaproxy.deb ' + latestZapDeb],shell=True)
+        run(['/usr/bin/dpkg -i /tmp/zaproxy.deb'],shell=True)
+    except Exception as e:
+        writeToLog('[-] Zaproxy not installed. Error: ' + str(e))
 
 # display log
 def displayLog():
@@ -493,6 +514,6 @@ def main():
     giveUserNextSteps()
     exit(0)
 
-#main()
-#if __name__== "__main__":
-#    main()
+main()
+if __name__== "__main__":
+    main()
