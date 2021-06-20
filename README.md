@@ -77,3 +77,4 @@ And more...
 * add Recon-NG
 * add Maltego
 * test Erik Zimmermans tools in wine
+* add a folder in /usr/share/? packed with SANS Posters
