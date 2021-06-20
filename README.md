@@ -45,6 +45,13 @@ RE Tools
 * binwalk
 * look and feel of REMnux (CLI Color Highlighting for filetype)
 
+Network tools
+* snort
+* tcpdump
+* wireshark 
+* tshark
+* ngrep
+
 Security Assessment (PenTest Tools)
 * Metasploit Framework
 * Burp Suite
@@ -58,6 +65,8 @@ Security Assessment (PenTest Tools)
 * smbclient /rpcclient
 * sqlmap
 * netcat-traditional
+* air-crack-ng
+* kismet
 
 Other
 * VS Code
@@ -66,7 +75,10 @@ Other
 And more...
 
 ### To-Do's
-* Add a dir containing pre-made host enumeration scripts
+* add Zeek
+* add RITA
+* add SiLK
+* add a dir containing pre-made host enumeration scripts
 * add DPAT (domain password auditing tool)?
 * SRUM Dump.py (does it work on Ubuntu?)
 * Responder symlink
