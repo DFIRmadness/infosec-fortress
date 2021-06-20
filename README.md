@@ -9,7 +9,7 @@ A python script to turn Ubuntu Desktop into a strong DFIR/RE System with some te
 + root privileges
 + Approx. 22 Gigs of free space
 
-`sudo apt install python3`
+`sudo apt install python3 git`
 
 ## Steps to run
 
