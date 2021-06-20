@@ -7,7 +7,7 @@ A python script to turn Ubuntu Desktop in a one stop security platform. The Info
 + python3
 + git
 + root privileges
-+ Approx. 22 Gigs
++ Approx. 22 Gigs of free space
 
 `sudo apt install python3`
 
@@ -34,25 +34,34 @@ This script will make /opt/infosec-fortress. This directory will contain build l
 8. Enum4Linux and Enum4linux-ng
 
 ### Notable tools
-1. Burp Suite
-2. Zap
-3. VS Code
-4. Ghidra (Pronounced Ghee-druh (like geek wihtout the k + druh))
-5. radare2
-6. Metasploit Framework
-7. Log2Timeline (Plaso)
-8. Powershell Core
-9. nmap
-10. masscan
-11. Hashcat
-12. John
-13. Hydra
-14. Medusa
-15. smbclient /rpcclient
-16. sqlmap
-17. netcat-traditional
-18. binwalk
-19. All the tools from REMnux and SIFT
+DFIR Tools
+* Log2Timeline (Plaso)
+* RegRipper
+* msg converter
+
+RE Tools
+* Ghidra (Pronounced Ghee-druh (like geek wihtout the k + druh))
+* radare2
+* binwalk
+* look and feel of REMnux (CLI Color Highlighting for filetype)
+
+Security Assessment (PenTest Tools)
+* Metasploit Framework
+* Burp Suite
+* Zap
+* nmap
+* masscan
+* Hashcat
+* John
+* Hydra
+* Medusa
+* smbclient /rpcclient
+* sqlmap
+* netcat-traditional
+
+Other
+* VS Code
+* Powershell Core
 
 And more...
 
@@ -64,3 +73,7 @@ And more...
 * add secretsdump.py (might be there already)
 * add bettercap
 * add Empyre? or similar
+* add spider foot community edition
+* add Recon-NG
+* add Maltego
+* test Erik Zimmermans tools in wine
