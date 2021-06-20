@@ -427,7 +427,7 @@ def installWindowsResources():
     writeToLog('[*] Installing Kali\'s Windows Resources')
     try:
         run(['/usr/bin/git clone https://gitlab.com/kalilinux/packages/windows-binaries.git /usr/share/windows-resources'],shell=True)
-        writeToLog('[+] Kali\'s WebShells Cloned to /usr/share/webshells')
+        writeToLog('[+] Kali\'s Windows Resources Cloned to /usr/share/webshells')
     except Exception as e:
         writeToLog('[-] There was an error installing Enum4Linux. Error: ' + str(e))
 
