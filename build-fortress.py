@@ -28,8 +28,6 @@ Functions:
 + install enum4linux
 + enum4linux https://github.com/cddmp/enum4linux-ng
 + display message about updating ZAP and Burp after reboot
-+ display log
-+ display fortress artwork
 '''
 
 # Globals
@@ -474,6 +472,13 @@ def displayLog():
             print(line.strip())
 
 # display fortress artwork
+def displayImage():
+    try:
+        run(['/usr/bin/curl -Lo ' + FORTRESS_DIR + 'fortress.jpg https://dfirmadness.com/wp-content/uploads/2021/06/infosec-fortress-2500.jpg'],shell=True)
+        run(['/usr/bin/eog ' + FORTRESS_DIR + 'fortress.jpg'],shell=True)
+        run(['/usr/bin/rm ' + FORTRESS_DIR + 'fortress.jpg'],shell=True)
+    except:
+        return
 
 # display message about updating ZAP and Burp after reboot
 def giveUserNextSteps():
@@ -511,6 +516,7 @@ def main():
     installBloodhound()
     freeSpaceEnd()
     displayLog()
+    displayImage()
     giveUserNextSteps()
     exit(0)
 
