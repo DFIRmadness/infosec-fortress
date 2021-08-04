@@ -514,6 +514,7 @@ def main():
     installWebShells()
     installWindowsResources()
     installBloodhound()
+    installZaproxy()
     freeSpaceEnd()
     displayLog()
     displayImage()
