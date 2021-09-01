@@ -1,4 +1,6 @@
-# infosec-fortress
+# The Fortress
+
+## infosec-fortress
 A python script to turn Ubuntu Desktop into a strong DFIR/RE System with some teeth (Purple Team Ops)! This is intended to create a single linux VM (or bare metal) very capable in Digital Forensics, Incident Response, Reverse Engineering and Penetration Testing. Daily drivers can be InfoSec War Machines as well! At a minimum it is working towards reducing the number of VM's needed for folks doing Forensics, Threat Hunting, Web App Assessments and Penetration testing along the way.
 
 ## Requirements:
