@@ -68,7 +68,8 @@ aptPackageList = [
     'dnsmap',
     'ettercap-common',
     'ettercap-graphical',
-    'netdiscover'
+    'netdiscover',
+    'sqsh'
     ]
 
 # List of packages to have SNAP install. Change if you want. You break it you buy it.
