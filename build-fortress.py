@@ -69,7 +69,8 @@ aptPackageList = [
     'ettercap-common',
     'ettercap-graphical',
     'netdiscover',
-    'sqsh'
+    'sqsh',
+    'install nfs-common'
     ]
 
 # List of packages to have SNAP install. Change if you want. You break it you buy it.
