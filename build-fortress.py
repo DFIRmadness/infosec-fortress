@@ -389,6 +389,8 @@ def installImpacket():
     try:
         run(['/usr/bin/git clone https://github.com/SecureAuthCorp/impacket.git /opt/impacket'],shell=True)
         run(['/usr/bin/python3 -m pip install /opt/impacket/.'],shell=True)
+        # It seems that it takes running this twice to get it to complete
+        run(['/usr/bin/python3 -m pip install /opt/impacket/.'],shell=True)
         writeToLog('[+] Impacket Installed.')
     except Exception as e:
         writeToLog('[-] There was an error installing Impacket. Error: ' + str(e))
@@ -465,6 +467,24 @@ def installZaproxy():
     except Exception as e:
         writeToLog('[-] Zaproxy not installed. Error: ' + str(e))
 
+def installZeek():
+    # instll Zeek
+    writeToLog('[*] Installing Zeek...')
+    try:
+        run(['/usr/bin/echo \'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_20.04/ /\' | sudo tee /etc/apt/sources.list.d/security:zeek.list'],shell=True)
+        run(['/usr/bin/curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null'],shell=True)
+        run(['/usr/bin/apt update'],shell=True)
+        run(['/usr/bin/apt -y install zeek'],shell=True)
+    except Exception as e:
+        writeToLog('[-] Zeek not installed. Error: ' + str(e))
+    # add /opt/zeek/bin to the path permanently
+    try:
+        writeToLog('[i] Writing Zeeks path to the current users bashrc. You may need to manually add: \'export PATH=$PATH:/opt/zeek/bin\' to yours.')
+        run(['/usr/bin/echo "export PATH=$PATH:/opt/zeek/bin" >> ~/.bashrc'],shell=True)
+        run(['export PATH=$PATH:/opt/zeek/bin'],shell=True)
+    except Exception as e:
+        writeToLog('[-] Zeek path not added. Error: ' + str(e))
+
 # display log
 def displayLog():
     print('[*] The following activities were logged:\n')
@@ -487,7 +507,8 @@ def giveUserNextSteps():
     print(GREEN + '[+]' + '-----------------------------------------------------------------------------------' + NOCOLOR)
     print(GREEN + '[+]' + '------------------------ ! Script Complete ! --------------------------------------' + NOCOLOR)
     print('\n\n[!] REBOOT the system. After Reboot you will want to run Burp, Zap and Ghidra. Each will ask you to update.\
-        \n    You should update these. If they have you download a .deb file you simple run ' + GREEN + 'dpkg -i foo.deb' + NOCOLOR + '.')
+        \n    You should update these. If they have you download a .deb file you simple run ' + GREEN + 'dpkg -i foo.deb' + NOCOLOR + '.\
+        \n Don\'t forget to run: \'echo "export PATH=$PATH:/opt/zeek/bin" >> ~/.bashrc\' to add the Zeek bins to your user (non-root) path')
     nullInput = input('Hit Enter.')
 
 # Re-enable unattended upgrade
@@ -517,6 +538,7 @@ def main():
     installWindowsResources()
     installBloodhound()
     installZaproxy()
+    installZeek()
     freeSpaceEnd()
     displayLog()
     displayImage()
