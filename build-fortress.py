@@ -5,7 +5,7 @@ Purpose: Build the infosec-fortress
 Author: James Smith (DFIRmadness)
 Contributors: Check the github page.
 Notes: Beta
-Version: 0.1
+Version: 0.5
 Usage: ./build-fortress.py
 
 Functions:
@@ -256,8 +256,9 @@ def installSIFTPackages():
     writeToLog('[*] Finding latest SIFT Release.')
     try:
         latestLinkPage  = get('https://github.com/sans-dfir/sift-cli/releases/latest').text.splitlines()
-        latestSIFTBinLine = [match for match in latestLinkPage if "sift-cli-linux" in match][4].split('"')[1]
-        latestSIFTBin = search('https:.*sift-cli-linux',latestSIFTBinLine)[0]
+        latestSIFTBinLine = [match for match in latestLinkPage if "sift-cli-linux" in match][0].split('"')[1]
+        latestSIFTBin = 'https://github.com/' + latestSIFTBinLine
+        #latestSIFTBin = search('https:.*sift-cli-linux',latestSIFTBinLine)[0]
         writeToLog('[+] latest SIFT BIN: ' + latestSIFTBin)
     except Exception as e:
         writeToLog('[-] latest SIFT Bin not found. Error: ' + str(e))
